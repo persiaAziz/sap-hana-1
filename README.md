@@ -171,15 +171,15 @@ In this simple example, we'll deploy a simple single-node SAP HANA instance (spe
     export AZURE_TENANT='XXX'
     ```
 
-   Configure Terraform:
-   ```sh
-   export ARM_SUBSCRIPTION_ID='XXX'
-   export ARM_TENANT_ID='XXX'
-   export ARM_CLIENT_ID='XXX'
-   export ARM_CLIENT_SECRET='XXX'
-   ```
+    Configure Terraform:
+    ```sh
+    export ARM_SUBSCRIPTION_ID='XXX'
+    export ARM_TENANT_ID='XXX'
+    export ARM_CLIENT_ID='XXX'
+    export ARM_CLIENT_SECRET='XXX'
+    ```
 
-  *(**Note:** Please note that you will need to create a service principal. If you don't have a service principal, please follow the instructions to create one, [How to create a service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fen-us%2Fazure%2Fazure-resource-manager%2Ftoc.json&bc=%2Fen-us%2Fazure%2Fbread%2Ftoc.json&view=azure-cli-latest))*
+    *(**Note:** Please note that you will need to create a service principal. If you don't have a service principal, please follow the instructions to create one, [How to create a service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli?toc=%2Fen-us%2Fazure%2Fazure-resource-manager%2Ftoc.json&bc=%2Fen-us%2Fazure%2Fbread%2Ftoc.json&view=azure-cli-latest))*
 
 12. Trigger the deployment:
 
