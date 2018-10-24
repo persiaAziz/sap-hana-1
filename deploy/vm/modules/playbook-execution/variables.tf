@@ -6,6 +6,15 @@ variable "az_resource_group" {
   description = "Which azure resource group to deploy the HANA setup into.  i.e. <myResourceGroup>"
 }
 
+variable "bastion_username_windows" {
+  description = "The username for the bastion host"
+}
+
+variable "db_num" {
+  description = "which node is currently being created"
+  default     = 0
+}
+
 variable "email_shine" {
   description = "e-mail address for SHINE user"
   default     = "shinedemo@microsoft.com"
@@ -39,6 +48,10 @@ variable "private_ip_address_db1" {
 variable "private_ip_address_lb_frontend" {
   description = "Private ip address of the load balancer front end in HA pair"
   default     = ""                                                             # not needed in single node case
+}
+
+variable "pw_bastion_windows" {
+  description = "The password for the bastion host"
 }
 
 variable "pw_db_system" {
@@ -96,6 +109,10 @@ variable "url_di_core" {
   default     = ""
 }
 
+variable "url_hana_studio_windows" {
+  description = "URL for the Windows version of HANA Studio to install on the bastion host"
+}
+
 variable "url_portal_services" {
   description = "URL for Portal Services"
   default     = ""
@@ -109,6 +126,10 @@ variable "url_sap_hdbserver" {
 variable "url_sap_sapcar" {
   type        = "string"
   description = "The URL that points to the SAPCAR bits"
+}
+
+variable "url_sapcar_windows" {
+  description = "URL for SAPCAR for Windows to run on the bastion host"
 }
 
 variable "url_sapui5" {
@@ -142,4 +163,12 @@ variable "vm_user" {
 
 variable "vms_configured" {
   description = "The hostnames of the machines that need to be configured in order to correctly run this playbook."
+}
+
+variable "azure_service_principal_id" {
+  description = "Service principal Id"
+}
+
+variable "azure_service_principal_pw" {
+  description = "service principal password"
 }
