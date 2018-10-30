@@ -6,10 +6,10 @@
   file:
       path: "/home/{{ azure_user }}/SAPCAR.EXE"
       mode: 0755
-- name: download hana studio
+- name: download HANA Studio
   get_url:
       url: "{{hana_studio_url}}"
       dest: "/home/{{ azure_user }}/HANA_STUDIO.SAR"
-- name: extract hana studio
+- name: extract HANA Studio
   shell: ./SAPCAR.EXE -manifest SIGNATURE.SMF -xvf HANA_STUDIO.SAR
 

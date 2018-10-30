@@ -52,7 +52,7 @@
     - debug:
             msg: "linux bastion host required: {{az_json.linux_bastion}}"
 
-- name: install stuffs
+- name: install HANA Studio
   hosts: bastion_linux_group
   roles:
           - { role: setup-linux-hana-studio, when: az_json.linux_bastion == true,  azure_user: '{{ az_json.az_user }}', hana_studio_url: '{{ az_json.url_linux_hana_studio }}', sapcar_url: '{{ az_json.url_linux_sapcar }}' }
