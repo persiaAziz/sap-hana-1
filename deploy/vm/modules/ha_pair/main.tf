@@ -211,14 +211,15 @@ module "configure_vm" {
 
 resource null_resource "destroy-vm" {
   provisioner "local-exec" {
-    when    = "destroy"
+    when = "destroy"
+
     command = <<EOT
                OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES \
                AZURE_RESOURCE_GROUPS="${var.az_resource_group}" \
                ANSIBLE_HOST_KEY_CHECKING="False" \
 	       ansible-playbook -u '${var.vm_user}' \
 	       --private-key '${var.sshkey_path_private}' \
-	       --extra-vars="{az_resource_group: \"${module.common_setup.resource_group_name}\", az_vm_name: \"linuxBastionHost\"}" ../../ansible/delete_bastion_linux.yml
+	       --extra-vars="{az_resource_group: \"${module.common_setup.resource_group_name}\", az_vm_name:  \"${local.linux_vm_name}\"}" ../../ansible/delete_bastion_linux.yml
 EOT
-}
+  }
 }
