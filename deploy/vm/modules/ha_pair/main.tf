@@ -163,7 +163,7 @@ module "windows_bastion_host" {
 }
 
 resource "local_file" "write-config-to-json" {
-  content  = "{az_vnet: \"${module.common_setup.vnet_name}\",az_subnet: \"hdb-subnet\",linux_bastion: ${var.linux_bastion},url_linux_hana_studio: \"${var.url_hana_studio_linux}\", url_linux_sapcar: \"${var.url_sapcar_linux}\",az_resource_group: \"${module.common_setup.resource_group_name}\", az_user: \"${var.vm_user}\", nsg_id: \"${module.common_setup.nsg_id}\", vm_size: \"${var.vm_size}\", private_ip_address: \"${var.private_ip_address_linux_bastion}\",az_public_key: \"${var.sshkey_path_public}\", ssh_private_key_file: \"${var.sshkey_path_private}\"}"
+  content  = "{az_vm_name: \"${local.linux_vm_name}\",az_vnet: \"${module.common_setup.vnet_name}\",az_subnet: \"hdb-subnet\",linux_bastion: ${var.linux_bastion},url_linux_hana_studio: \"${var.url_hana_studio_linux}\", url_linux_sapcar: \"${var.url_sapcar_linux}\",az_resource_group: \"${module.common_setup.resource_group_name}\", az_user: \"${var.vm_user}\", nsg_id: \"${module.common_setup.nsg_id}\", vm_size: \"${var.vm_size}\", private_ip_address: \"${var.private_ip_address_linux_bastion}\",az_public_key: \"${var.sshkey_path_public}\", ssh_private_key_file: \"${var.sshkey_path_private}\"}"
   filename = "temp.json"
 }
 

@@ -128,7 +128,7 @@
   roles:
     - add-AzEvents-agent
 
-- name: bastion_host playbook
+- name: playbook for linux bastion host
   vars:
      config_json_file: ../modules/ha_pair/temp.json
   import_playbook: linux_bastion_host.yml

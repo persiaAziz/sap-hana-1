@@ -226,6 +226,9 @@ variable "linux_bastion" {
 }
 
 locals {
+  # name of the linux vm
+  linux_vm_name = "${lower(var.sap_sid)}-linux-bastion"
+
   # These are the load balancing ports specifically for HANA1 pacemaker. DO NOT ALTER
   hana1_lb_ports = [
     "3${var.sap_instancenum}15",

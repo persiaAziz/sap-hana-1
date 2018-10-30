@@ -213,3 +213,9 @@ variable "linux_bastion" {
   description = "Whether or not you want a linux bastion host"
   default     = false
 }
+
+locals {
+  #name of the linux vm
+  linux_vm_name = "${lower(var.sap_sid)}-linux-bastion"
+}
+

@@ -15,8 +15,8 @@
       azure_rm_publicipaddress:
           resource_group: "{{ az_json.az_resource_group }}"
           allocation_method: Dynamic
-          name: linuxbastionpip
-          domain_name: linuxbastionhost
+          name: "{{ az_json.az_vm_name }}-pip"
+          domain_name: "{{az_json.az_vm_name}}"
       register: ip_sample
       when: az_json.linux_bastion == true
     - debug:
@@ -24,10 +24,10 @@
     - name: NIC for linux bastion host
       azure_rm_networkinterface:
           resource_group: "{{ az_json.az_resource_group }}"
-          name: linuxBastionNic
+          name: "{{ az_json.az_vm_name}}-nic"
           virtual_network: "{{ az_json.az_vnet }}"
           subnet: "{{ az_json.az_subnet }}"
-          public_ip_name: linuxbastionpip
+          public_ip_name: "{{ az_json.az_vm_name }}-pip"
           security_group: "{{ az_json.nsg_id }}"
       when: az_json.linux_bastion == true
     - add_host:
@@ -41,7 +41,7 @@
 
 - hosts: localhost
   roles:
-          - { role: create-azure-vm, when: az_json.linux_bastion == true, azure_vm_fqdn: '{{ az_json.az_fqdn }}', public_key_path: '{{ az_json.az_public_key }}',azure_resource_group: '{{ az_json.az_resource_group }}', azure_user: '{{ az_json.az_user }}', azure_nic: linuxBastionNic}
+          - { role: create-azure-vm, when: az_json.linux_bastion == true, azure_vm_fqdn: '{{ az_json.az_vm_name }}', public_key_path: '{{ az_json.az_public_key }}',azure_resource_group: '{{ az_json.az_resource_group }}', azure_user: '{{ az_json.az_user }}', azure_nic: linuxBastionNic}
 
 - hosts: bastion_linux_group
   tasks:
@@ -49,7 +49,7 @@
         file: "{{ config_json_file }}"
         name: az_json
     - debug:
-            msg: " linux bastion host required: {{az_json.linux_bastion}}"
+            msg: "linux bastion host required: {{az_json.linux_bastion}}"
 
 - name: install stuffs
   hosts: bastion_linux_group
