@@ -42,7 +42,7 @@
 
 - hosts: localhost
   roles:
-          - { role: create-azure-vm, when: az_json.linux_bastion == true, azure_vm_fqdn: '{{ az_json.az_vm_name }}', public_key_path: '{{ az_json.az_public_key }}',azure_resource_group: '{{ az_json.az_resource_group }}', azure_user: '{{ az_json.az_user }}', azure_nic: '{{ nic_sample.state.name }}'}
+          - { role: create-azure-vm, when: az_json.linux_bastion == true, azure_vm_name: '{{ az_json.az_vm_name }}', public_key_path: '{{ az_json.az_public_key }}',azure_resource_group: '{{ az_json.az_resource_group }}', azure_user: '{{ az_json.az_user }}', azure_nic: '{{ nic_sample.state.name }}'}
 
 - hosts: bastion_linux_group
   tasks:

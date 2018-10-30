@@ -4,7 +4,7 @@
           public_key_data: "{{ lookup('file','{{ public_key_path }}') }}"
   azure_rm_virtualmachine:
           resource_group: "{{ azure_resource_group }}"
-          name: "linux-{{azure_resource_group}}"
+          name: "{{ azure_vm_name }}"
           vm_size: Standard_D8s_v3
           admin_username: "{{ azure_user }}"
           ssh_password_enabled: false
