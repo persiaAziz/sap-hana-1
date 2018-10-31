@@ -9,6 +9,6 @@ output "nic_id" {
 }
 
 output "nic_name" {
-  description = "The id of the network interface"
+  description = "The name of the network interface"
   value       = "${azurerm_network_interface.nic.name}"
 }
