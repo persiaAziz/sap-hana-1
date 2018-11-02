@@ -5,12 +5,12 @@
         - name: detach public ip from the nic
           azure_rm_networkinterface:
               resource_group: "{{ azure_resource_group }}"
-              name: "{{ azure_nic}}"
+              name: "{{ azure_nic }}"
               virtual_network: "{{ azure_vnet }}"
               subnet: "{{ azure_subnet }}"
               security_group: "{{ azure_nsg }}"
               ip_configurations:
-                - name: "{{ip_config_name}}"
+                - name: "{{ ip_config_name }}"
                   private_ip_address: "{{ azure_private_ip }}"
                   private_ip_allocation_method: Static
                   primary: yes
