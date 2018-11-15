@@ -9,4 +9,4 @@ This directory contains the resources to do regression testing. The current regr
 How to run:
 -----------
 
-ansible-playbook create_ubuntu_vm.yml --extra-vars="{resource_group: "< resource group> ", ssh_private_key_file: "<path to private key file>", ssh_public_key_file: "<path to public key file>", vm_user: "persia", allowed_source_ip_prefix: "<range of ip address allowed to ssh to this tester vm. e.g. "X.X.X.X/16">"}"
+ansible-playbook create_ubuntu_vm.yml --extra-vars="{resource_group: "< resource group> ", ssh_private_key_file: "<path to private key file>", ssh_public_key_file: "<path to public key file>", vm_user: "< user name >", allowed_source_ip_prefix: "<range of ip address allowed to ssh to this tester vm. e.g. "X.X.X.X/16">"}"
