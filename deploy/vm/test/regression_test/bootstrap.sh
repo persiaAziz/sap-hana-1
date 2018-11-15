@@ -13,7 +13,7 @@ unzip terraform_0.11.10_linux_amd64.zip
 cp terraform /usr/local/bin/
 
 #install Ansible:
-apt-get -y  update
+apt-get -y update
 apt-get -y install python-pip
 apt-get -y install ansible
 apt-get -y install gcc python python-dev musl-dev libffi-dev
@@ -22,4 +22,3 @@ sudo -H pip install  cffi>=1.4.1
 pip install packaging
 pip install --ignore-installed pyyaml ansible[azure]
 sudo -H pip install msrest==0.6.0
-

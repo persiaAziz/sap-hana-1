@@ -74,7 +74,7 @@
         image:
             offer: UbuntuServer
             publisher: Canonical
-            sku: 16.04-LTS
+            sku: 18.04-LTS
             version: latest
 
 - name: install the requirements
