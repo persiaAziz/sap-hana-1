@@ -5,7 +5,7 @@ variable "az_resource_group" {
 }
 
 variable "az_domain_name" {
- description = "Prefix to be used in the domain name"
+  description = "Prefix to be used in the domain name"
 }
 
 variable "backend_ip_pool_ids" {
