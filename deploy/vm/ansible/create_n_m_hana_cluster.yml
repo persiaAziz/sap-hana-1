@@ -1,8 +1,19 @@
 ---
-- name: "Create HANA cluster of {{ n }} VMs"
+- name: prepare configs
+  hosts: localhost
+  tasks:
+     - set_fact:
+          m_count: "1"
+       when: m < 0
+     - set_fact:
+          m_count: "{{ m }}"
+       when: m > 0
+
+- name: "Create HANA cluster of {{ n }} VMs and standby of {{ m }} VMs"
   hosts: localhost
   roles:
-     - { role: create-vm-cluster, vm_group: "hana_vm_group" }
+     - { role: create-hana-cluster, vm_group: "hana_vm_group" }
+     - { role: create-vm-cluster, vm_group: "standby_group", domain_name_prefix: "standby", vm_count: "{{ m_count }}", when: m > 0 }
 
 - hosts: localhost
   tasks:
