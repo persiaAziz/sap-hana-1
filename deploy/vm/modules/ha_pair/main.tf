@@ -94,6 +94,7 @@ module "create_hdb0" {
   availability_set_id       = "${azurerm_availability_set.ha-pair-availset.id}"
   az_resource_group         = "${module.common_setup.resource_group_name}"
   az_region                 = "${module.common_setup.resource_group_location}"
+  az_domain_name            = "${var.az_domain_name}"
   backend_ip_pool_ids       = ["${azurerm_lb_backend_address_pool.availability-back-pool.id}"]
   hdb_num                   = "0"
   hana_subnet_id            = "${module.common_setup.vnet_subnets[0]}"
@@ -113,6 +114,7 @@ module "create_hdb1" {
   availability_set_id       = "${azurerm_availability_set.ha-pair-availset.id}"
   az_resource_group         = "${module.common_setup.resource_group_name}"
   az_region                 = "${module.common_setup.resource_group_location}"
+  az_domain_name            = "${var.az_domain_name}"
   backend_ip_pool_ids       = ["${azurerm_lb_backend_address_pool.availability-back-pool.id}"]
   hdb_num                   = "1"
   hana_subnet_id            = "${module.common_setup.vnet_subnets[0]}"
@@ -131,6 +133,7 @@ module "nic_and_pip_setup_iscsi" {
 
   az_region                 = "${module.common_setup.resource_group_location}"
   az_resource_group         = "${module.common_setup.resource_group_name}"
+  az_domain_name            = "${var.az_domain_name}"
   name                      = "iscsi"
   nsg_id                    = "${module.common_setup.nsg_id}"
   private_ip_address        = "${var.private_ip_address_iscsi}"
