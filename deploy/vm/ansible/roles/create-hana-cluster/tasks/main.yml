@@ -20,7 +20,7 @@
         resource_group: "{{ resource_group }}"
         allocation_method: Static
         name: "hanavm-pip{{ item }}"
-        domain_name: "hanavm-{{ item }}-{{ resource_group }}"
+        domain_name: "{{ az_domain_name }}-hana{{ item }}"
         sku: Standard
       register: ip_sample
       with_sequence: start=1 end="{{ n }}"
@@ -38,14 +38,6 @@
              priority: 1001
              direction: Inbound
              source_address_prefix: "{{ allowed_source_ip_prefix }}"
-    - name: create public ip for loadbalancer
-      azure_rm_publicipaddress:
-          resource_group: "{{ resource_group }}"
-          allocation_method: Static
-          name: "hanalb-pip{{ item }}"
-          domain_name: "hana-{{ item }}-{{ resource_group }}"
-          sku: Standard
-      register: ip_sample_lb
       with_sequence: start=1 end="{{ n }}"
     - name: set up the load balancers
       azure_rm_loadbalancer:
@@ -54,25 +46,22 @@
           sku: Standard
           frontend_ip_configurations:
               - name: "frontendipconf{{ item }}"
-                public_ip_address: "hanalb-pip{{ item }}"
+                private_ip_address: "10.0.1.9{{ item }}"
+                private_ip_allocation_method: Static
+                subnet: "{{ hana_cluster_subnet.state.id }}"
           backend_address_pools:
               - name: "backendaddrpool{{ item }}"
           probes:
               - name: "probe{{ item }}"
-                port: 80
-          inbound_nat_pools:
-              - name: "inboundnatpool{{ item }}"
-                frontend_ip_configuration_name: "frontendipconf{{ item }}"
                 protocol: Tcp
-                frontend_port_range_start: 80
-                frontend_port_range_end: 81
-                backend_port: 8080
+                port: 22
           load_balancing_rules:
               - name: "lbrbalancingrule{{ item }}"
+                protocol: All
                 frontend_ip_configuration: "frontendipconf{{ item }}"
                 backend_address_pool: "backendaddrpool{{ item }}"
-                frontend_port: 80
-                backend_port: 80
+                frontend_port: 0
+                backend_port: 0
                 probe: "probe{{ item }}"
       with_sequence: start=1 end="{{ n }}"
     - name: NIC for the VMs

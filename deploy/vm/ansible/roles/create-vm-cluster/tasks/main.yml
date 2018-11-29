@@ -19,13 +19,11 @@
       azure_rm_publicipaddress:
         resource_group: "{{ resource_group }}"
         allocation_method: Static
-        name: "hanavm-pip{{ item }}"
-        domain_name: "{{ domain_name_prefix }}-{{ item }}-{{ resource_group }}"
+        name: "{{ vm_group }}-pip{{ item }}"
+        domain_name: "{{ az_domain_name }}-{{ vm_group }}{{ item }}"
         sku: Standard
       register: ip_sample
       with_sequence: start=1 end="{{ vm_count }}"
-    - debug:
-        msg: "hana vm :{{ ip_sample.results[0].state.dns_settings.fqdn }}"
     - name: Create Network Security Group that allows SSH
       azure_rm_securitygroup:
          resource_group: "{{ resource_group }}"
@@ -41,15 +39,15 @@
     - name: NIC for the VMs
       azure_rm_networkinterface:
           resource_group: "{{ resource_group }}"
-          name: "{{ resource_group }}-nic{{ item }}"
+          name: "{{ vm_group }}-nic{{ item }}"
           virtual_network: "hana-vnet"
           subnet: "hana-subnet"
-          public_ip_name: "hanavm-pip{{ item }}"
+          public_ip_name: "{{ vm_group }}-pip{{ item }}"
           security_group: "{{ resource_group }}-hana-nsg"
           enable_accelerated_networking: True
           ip_configurations:
              - name: hana-ip-config
-               public_ip_address_name: "hanavm-pip{{ item }}"
+               public_ip_address_name: "{{ vm_group }}-pip{{ item }}"
                primary: yes
       register: nic_sample
       with_sequence: start=1 end="{{ vm_count }}"
@@ -66,14 +64,14 @@
       azure_rm_virtualmachine:
         resource_group: "{{ resource_group }}"
         managed_disk_type: Standard_LRS
-        name: "hanavm-{{ item }}"
+        name: "{{ vm_group }}-{{ item }}"
         vm_size: Standard_D8s_v3
         admin_username: "{{ vm_user }}"
         ssh_password_enabled: false
         ssh_public_keys:
             - path: "/home/{{ vm_user }}/.ssh/authorized_keys"
               key_data: "{{ public_key_data }}"
-        network_interfaces: "{{ resource_group }}-nic{{ item }}"
+        network_interfaces: "{{ vm_group }}-nic{{ item }}"
         started: yes
         state: present
         image:
