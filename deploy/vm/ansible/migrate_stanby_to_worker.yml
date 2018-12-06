@@ -1,7 +1,7 @@
 ---
-#This playbook employs a standby node as a worker node. The steps performed are as follows:
-#        1. Migrate the hana disks to the standby node from the impending worker node
-#        2. Move the standby node to the backend pool of the loadbalancer the impending node was attached to
+#This playbook uses an existing standby node to confugure it as a worker node in HANA in case of a failover. The steps performed are as follows:
+#        1. Migrate the hana disks to the standby node from the failed worker node
+#        2. Move the standby node to the backend pool of the loadbalancer the failed node was attached to
 - name: Get the disks to be moved
   hosts: localhost
   tasks:
@@ -54,6 +54,5 @@
                 load_balancer_backend_address_pools:
                     - name: "{{ nic_res.ansible_facts.azure_networkinterfaces[0].properties.ipConfigurations[0].properties.loadBalancerBackendAddressPools[0].id.split('/')[-1] }}"
                       load_balancer: "{{ nic_res.ansible_facts.azure_networkinterfaces[0].properties.ipConfigurations[0].properties.loadBalancerBackendAddressPools[0].id.split('/')[-3] }}"
-#
-#          register: nic_sample
+
 
