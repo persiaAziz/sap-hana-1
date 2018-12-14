@@ -1,0 +1,6 @@
+---
+- name: call config check
+  hosts: localhost
+  tasks:
+          - name: stuff
+            command: python ../ConfigurationCheck/configCheck.py
