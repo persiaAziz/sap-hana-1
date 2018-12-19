@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 '''
-This script is supposed to run by the attach callback in the standby node. This script detaches the disks from the failed node and attaches to another (standby).
-Run the script: python migrate-disk.py <migrate_from_vm> <migrate_to_vm>
-Example: python migrate-disk.py hana-vm-1 hana-vm-2
+This script detaches the disks from a (failed) node and attaches to another (standby).
+
+To Run the script:
+ Command: python migrate-disk.py <migrate_from_vm> <migrate_to_vm>
+ Example: python migrate-disk.py hana-vm-1 hana-vm-2
 '''
 
 import os
@@ -23,10 +25,10 @@ def main():
     request = urllib2.Request(url=mdUrl, headers=header) 
     response = urllib2.urlopen(request)
     data = response.read()
-    dataStr = data.decode("utf-8")
-    jsonObj = json.loads(dataStr)
-    print(jsonObj)
-    GROUP_NAME = jsonObj["resourceGroupName"]
+    metaData = data.decode("utf-8")
+    vm_meta_json = json.loads(metaData)
+    print(vm_meta_json)
+    GROUP_NAME = vm_meta_json["resourceGroupName"]
     VM_NAME = sys.argv[1]
 
     subscription_id = os.environ.get('AZURE_SUBSCRIPTION_ID')
@@ -55,7 +57,7 @@ def main():
     current_host = sys.argv[2]
     async_vm_update = compute_client.virtual_machines.create_or_update(GROUP_NAME, current_host, 
            {
-             'location': "eastus",
+             'location': vm_meta_json["location"],
              'storage_profile': {
                  'data_disks': data_disks_r
            }
@@ -63,8 +65,6 @@ def main():
         })
 
     async_vm_update.wait()
-    #print(json.dumps(jsonObj, sort_keys=True, indent=4, separators=(',', ': ')))
-
 
 if __name__=="__main__":
    main()
