@@ -1,3 +1,9 @@
+'''
+this script redeploys a VM that resides in the same azure space (i.e., resourrce group and VNet).
+How to run:  python redeploy-vm.py <name of the vm to redeploy>
+Example:  python redeploy-vm.py hanavm-1
+'''
+
 import os
 import json
 import requests
