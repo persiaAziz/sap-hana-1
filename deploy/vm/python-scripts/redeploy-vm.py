@@ -46,8 +46,8 @@ def main():
             VM_NAME
         )
 
-    async_vm_update = compute_client.virtual_machines.redeploy(GROUP_NAME, VM_NAME)
-    r_virtual_machine = async_vm_update.result()
+    async_vm_redeploy = compute_client.virtual_machines.redeploy(GROUP_NAME, VM_NAME)
+    r_virtual_machine = async_vm_redeploy.result()
 
 
 if __name__=="__main__":
