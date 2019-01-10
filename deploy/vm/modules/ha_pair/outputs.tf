@@ -18,10 +18,10 @@ output "windows_bastion_user" {
   value = "${var.bastion_username_windows}"
 }
 
-output "master_hdb" {
+output "primary_hdb" {
   value = "${module.create_hdb0.machine_hostname}"
 }
 
-output "slave_hdb" {
+output "secondary_hdb" {
   value = "${module.create_hdb1.machine_hostname}"
 }
