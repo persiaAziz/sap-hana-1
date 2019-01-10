@@ -8,5 +8,5 @@ try:
     print(cursor.fetchone())
     connection.close()
 except:
-    print("Connection to the database could not be established")
+    print("Connection to the database could not be established. Please check your input and make sure that the database is up and running.")
     exit(1)
