@@ -25,4 +25,3 @@ output "master_hdb" {
 output "slave_hdb" {
   value = "${module.create_hdb1.machine_hostname}"
 }
-
