@@ -17,3 +17,12 @@ output "windows_bastion_ip" {
 output "windows_bastion_user" {
   value = "${var.bastion_username_windows}"
 }
+
+output "master_hdb" {
+  value = "${module.create_hdb0.machine_hostname}"
+}
+
+output "slave_hdb" {
+  value = "${module.create_hdb1.machine_hostname}"
+}
+
