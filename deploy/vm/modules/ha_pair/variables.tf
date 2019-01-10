@@ -53,6 +53,11 @@ variable "install_xsa" {
   default     = false
 }
 
+variable "install_webide" {
+  description = "Flag that determines whether to install WebIDE on the host"
+  default     = false
+}
+
 variable "private_ip_address_hdb0" {
   default = "10.0.0.6"
 }
@@ -201,6 +206,21 @@ variable "url_xsa_runtime" {
   default     = ""
 }
 
+variable "url_xsa_hrtt" {
+  description = "URL for HRTT"
+  default     = ""
+}
+
+variable "url_xsa_webide" {
+  description = "URL for WebIDE"
+  default     = ""
+}
+
+variable "url_xsa_mta" {
+  description = "URL for MTA ext"
+  default     = ""
+}
+
 variable "use_existing_nsg" {
   default = false
 }
@@ -235,7 +255,7 @@ variable "linux_bastion" {
 
 locals {
   # name of the linux vm
-  linux_vm_name = "${lower(var.sap_sid)}-linux-bastion"
+  linux_vm_name = "${var.az_domain_name}-linux-bastion"
 
   # These are the load balancing ports specifically for HANA1 pacemaker. DO NOT ALTER
   hana1_lb_ports = [
