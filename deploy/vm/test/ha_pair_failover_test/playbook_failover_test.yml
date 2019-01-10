@@ -39,13 +39,13 @@
     - debug:
          msg: "{{ testout.stdout }}"
     - fail:
-         msg: "{{ master_hdb }} is not the primary"
-      when: testout.stdout.find("{{ master_hdb }}") == -1
+         msg: "{{ primary_hdb }} is not the primary"
+      when: testout.stdout.find("{{ primary_hdb }}") == -1
 
 - hosts: localhost
   tasks:
     - add_host:
-         name: "{{ master_hdb_ip }}"
+         name: "{{ primary_hdb_ip }}"
          group: fail_hana_instance
 
 - name: stop database on the primary
@@ -78,5 +78,5 @@
     - debug:
          msg: "{{ testout.stdout }}"
     - fail:
-         msg: "{{ slave_hdb }} should be the primary after the failover but it is not"
-      when: testout.stdout.find("{{ slave_hdb }}") == -1
+         msg: "{{ secondary_hdb }} should be the primary after the failover but it is not"
+      when: testout.stdout.find("{{ secondary_hdb }}") == -1
