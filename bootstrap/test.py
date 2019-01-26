@@ -31,6 +31,8 @@ def authenticate_SMP(s_user,s_password):
     ### step 2: post to idp with the information
     re2=requests.post("https://authn.hana.ondemand.com/saml2/sp/mds",headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
 
+    #save the cookie
+    cookie = re2.headers['set-cookie']
     #get the saml request
     soup = BeautifulSoup(re2.content, 'html.parser')
     for input_h in soup.find_all('input'):
@@ -57,15 +59,23 @@ def authenticate_SMP(s_user,s_password):
         if "spName" == input_h.get('name'):
             data_spname = input_h.get('value')
 
-    requestBody="utf8=%E2%9C%93&authenticity_token={0}&xsrfProtection={1}&method=POST&idpSSOEndpoint={2}\
-&SAMLRequest={3}&RelayState={4}&&targetUrl=&sourceUrl=&org=&spId={5}&spName={6}\
-&mobileSSOToken=&tfaToken=&css=&j_username={7}&j_password={8}".format(urllib.parse.quote(auth_token),
-        urllib.parse.quote(xsrfProtection),
-        urllib.parse.quote(idp_sso_endpoint), urllib.parse.quote(saml_request),
-        urllib.parse.quote(relayState),urllib.parse.quote(data_spid),
-        urllib.parse.quote(data_spname),urllib.parse.quote(s_user),
-        urllib.parse.quote(s_password))
-    print(requestBody)
+#    requestBody="utf8=%E2%9C%93&authenticity_token={0}&xsrfProtection={1}&method=POST&idpSSOEndpoint={2}\
+#&SAMLRequest={3}&RelayState={4}&&targetUrl=&sourceUrl=&org=&spId={5}&spName={6}\
+#&mobileSSOToken=&tfaToken=&css=&j_username={7}&j_password={8}".format(urllib.parse.quote(auth_token),
+#        urllib.parse.quote(xsrfProtection),
+#        urllib.parse.quote(idp_sso_endpoint), urllib.parse.quote(saml_request),
+#        urllib.parse.quote(relayState),urllib.parse.quote(data_spid),
+#        urllib.parse.quote(data_spname),urllib.parse.quote(s_user),
+#        urllib.parse.quote(s_password))
+
+    requestBody2="utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"xsrfProtection":xsrfProtection,"method":"POST",
+        "idpSSOEndpoint":idp_sso_endpoint,"SAMLRequest":saml_request,"RelayState":relayState,"targetUrl":"",
+        "sourceUrl":"","org":"","spId":data_spid,"spName":data_spname,"mobileSSOToken":"",
+        "tfaToken":"","css":"","j_username":s_user,"j_password":s_password})
+
+    print(requestBody2)
+    re4 = requests.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal", headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", "Content-Type": "application/x-www-form-urlencoded", "cookie": cookie, "Content-Length":str(len(requestBody2))}, data=requestBody2)
+    print(re4.status_code)
 
 def main():
     parser = argparse.ArgumentParser(description='Process ')
