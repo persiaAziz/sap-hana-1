@@ -7,8 +7,8 @@ import pdb
 def authenticate_SMP(s_user,s_password):
 
     ### step 1: get the idpname, tenantid etc.
-    s = requests.session()
-    re1 = s.get("https://launchpad.support.sap.com")
+    s_launch = requests.session()
+    re1 = s_launch.get("https://launchpad.support.sap.com")
     print("1: ", re1.status_code)
     soup = BeautifulSoup(re1.content, 'html.parser')
     for input_h in soup.find_all('input'):
@@ -32,15 +32,19 @@ def authenticate_SMP(s_user,s_password):
             urllib.parse.quote(relayState),urllib.parse.quote(signature))
 
     ### step 2: post to idp with the information
-    re2=requests.post("https://authn.hana.ondemand.com/saml2/sp/mds",headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
+    s_auth = requests.session()
+    re2 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/mds",headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
     print("2: ",re2.status_code)
     #save the cookie
-    cookie = re2.headers['set-cookie']
+    cookie_auth = re2.headers['set-cookie']
+    #cookie_auth.replace(",",";")
     #get the saml request
     soup = BeautifulSoup(re2.content, 'html.parser')
     for input_h in soup.find_all('input'):
         if "SAMLRequest" == input_h.get('name'):
             saml_request = input_h.get('value')
+        if "RelayState" == input_h.get('name'):
+            relayState_auth = input_h.get('value')
     #print("saml=>",saml_request)
     requestBody = "SAMLRequest={0}&RelayState={1}".format(urllib.parse.quote(saml_request),urllib.parse.quote(relayState))
 
@@ -65,19 +69,38 @@ def authenticate_SMP(s_user,s_password):
 
     #pdb.set_trace()
     requestBody2="utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"xsrfProtection":xsrfProtection,"method":"POST",
-        "idpSSOEndpoint":idp_sso_endpoint,"SAMLRequest":saml_request,"RelayState":relayState,"targetUrl":"",
+        "idpSSOEndpoint":idp_sso_endpoint,"SAMLRequest":saml_request,"RelayState":relayState_auth,"targetUrl":"",
         "sourceUrl":"","org":"","spId":data_spid,"spName":data_spname,"mobileSSOToken":"",
         "tfaToken":"","css":"","j_username":s_user,"j_password":s_password})
 
     #Step 4: Send the credentials and get the appropriate cookies
     print(requestBody2)
     cookie = a_cookies
+    print("cookie for step 4: ",cookie)
     re4 = s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com","Upgrade-Insecure-Requests": "1", "DNT":"1", "Content-Type": "application/x-www-form-urlencoded", "Cookie": cookie, "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody2))}, data=requestBody2)
-    print(re4.headers)
+    #print("content: ",re4.content)
     print("4: ",re4.status_code)
 
-    #Step 5: 
+    soup = BeautifulSoup(re4.content, 'html.parser')
+    for input_h in soup.find_all('input'):
+        #print(input_h.get('name'))
+        if "SAMLResponse" == input_h.get('name'):
+            saml_response = input_h.get('value')
 
+    #Step 5: Pass the SAML response to the idp
+    print("cookie: ",cookie_auth)
+    requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
+    print("body: ",requestBody5)
+    re5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal", headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+        "Content-Type": "application/x-www-form-urlencoded","Cookie": cookie_auth,"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Encoding": "gzip, deflate, br", 
+          "Upgrade-Insecure-Requests": "1", "DNT":"1",
+          "Content-Length":str(len(requestBody5))}, data=requestBody5)
+    print("5: ",re5.status_code)
+
+    #step 6:
+    re6 = s_launch.post("https://launchpad.support.sap.com/",headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal","Content-Type":"application/x-www-form-urlencoded", "Cookie":cookie,
+        "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody5))}, data=requestBody5)
+    print("6: ",re6.status_code)
 def main():
     parser = argparse.ArgumentParser(description='Process ')
     parser.add_argument('-u', "--s_user", required=True, help='S_user')
