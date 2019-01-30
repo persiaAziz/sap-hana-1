@@ -98,9 +98,12 @@ def authenticate_SMP(s_user,s_password):
     print("5: ",re5.status_code)
 
     #step 6:
-    re6 = s_launch.post("https://launchpad.support.sap.com/",headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal","Content-Type":"application/x-www-form-urlencoded", "Cookie":cookie,
-        "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody5))}, data=requestBody5)
+    requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
+    re6 = s_launch.post("https://launchpad.support.sap.com/#/softwarecenter/search/80002031",
+          headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal","Content-Type":"application/x-www-form-urlencoded",
+          "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody6))}, data=requestBody6)
     print("6: ",re6.status_code)
+    print("headers: \n{0}\n and \ncontent:\n {1}".format(re6.headers,re6.content))
 def main():
     parser = argparse.ArgumentParser(description='Process ')
     parser.add_argument('-u', "--s_user", required=True, help='S_user')
