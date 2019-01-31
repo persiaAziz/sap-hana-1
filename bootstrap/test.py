@@ -3,12 +3,13 @@ from bs4 import BeautifulSoup
 import urllib
 import argparse
 import pdb 
+from http import cookies
 
 def authenticate_SMP(s_user,s_password):
 
     ### step 1: get the idpname, tenantid etc.
     s_launch = requests.session()
-    re1 = s_launch.get("https://launchpad.support.sap.com")
+    re1 = s_launch.get("https://launchpad.support.sap.com", headers={"Connection":"Kepp-Alive"})
     print("1: ", re1.status_code)
     soup = BeautifulSoup(re1.content, 'html.parser')
     for input_h in soup.find_all('input'):
@@ -25,6 +26,8 @@ def authenticate_SMP(s_user,s_password):
             signature = input_h.get('value')
         if "relayState" == input_h.get('name'):
             relayState = input_h.get('value')
+
+    cookie_launch = re1.headers["set-cookie"]
 
     requestBody = "tenantId={0}&idpName={1}&requestUrl={2}&requestId={3}&relayState={4}&action=sso&signature={5}".format(urllib.parse.quote(tenantId),
             urllib.parse.quote(idpName),
@@ -74,21 +77,26 @@ def authenticate_SMP(s_user,s_password):
         "tfaToken":"","css":"","j_username":s_user,"j_password":s_password})
 
     #Step 4: Send the credentials and get the appropriate cookies
-    print(requestBody2)
+    #print(requestBody2)
     cookie = a_cookies
-    print("cookie for step 4: ",cookie)
+    #print("cookie for step 4: ",cookie)
     re4 = s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com","Upgrade-Insecure-Requests": "1", "DNT":"1", "Content-Type": "application/x-www-form-urlencoded", "Cookie": cookie, "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody2))}, data=requestBody2)
     #print("content: ",re4.content)
     print("4: ",re4.status_code)
 
     soup = BeautifulSoup(re4.content, 'html.parser')
     for input_h in soup.find_all('input'):
-        #print(input_h.get('name'))
         if "SAMLResponse" == input_h.get('name'):
             saml_response = input_h.get('value')
 
+    cookie_processor = cookies.SimpleCookie()
+    print(re4.headers["set-cookie"].replace(",",";"))
+    cookie_processor.load("IDP_J_COOKIE=bla ; WHAT=WHY")
+    print(cookie_processor)
+    cookie_launch = cookie_launch.replace(",",";")+"; "+cookie_processor['IDP_J_COOKIE'].value
+    print("cookie: ",cookie_launch)
+
     #Step 5: Pass the SAML response to the idp
-    print("cookie: ",cookie_auth)
     requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
     print("body: ",requestBody5)
     re5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal", headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
@@ -99,11 +107,13 @@ def authenticate_SMP(s_user,s_password):
 
     #step 6:
     requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
-    re6 = s_launch.post("https://launchpad.support.sap.com/#/softwarecenter/search/80002031",
+    re6 = s_launch.post("https://launchpad.support.sap.com/",
           headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal","Content-Type":"application/x-www-form-urlencoded",
-          "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody6))}, data=requestBody6)
+              "Accept-Encoding": "gzip, deflate, br","Connection":"Keep-Alive", "Cookie": cookie_launch,"Content-Length":str(len(requestBody6))}, data=requestBody6)
     print("6: ",re6.status_code)
-    print("headers: \n{0}\n and \ncontent:\n {1}".format(re6.headers,re6.content))
+    print("Headers 6: ",re6.headers)
+    print("Content 6: ",re6.content)
+    #print("headers: \n{0}\n and \ncontent:\n {1}".format(re6.headers,re6.content))
 def main():
     parser = argparse.ArgumentParser(description='Process ')
     parser.add_argument('-u', "--s_user", required=True, help='S_user')
