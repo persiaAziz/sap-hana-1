@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import urllib
 import argparse
 from http import cookies
+import json
 
 def authenticate_SMP(s_user,s_password):
 
@@ -97,9 +98,7 @@ def authenticate_SMP(s_user,s_password):
 
     cookie_processor = cookies.SimpleCookie()
     cookie_processor.load(re4.cookies)
-    print(cookie_processor['IDP_SESSION_MARKER_accounts'])
     cookie_launch.set('IDP_SESSION_MARKER_accounts',cookie_processor['IDP_SESSION_MARKER_accounts'].value, domain= ".sap.com",path="/")
-    print("cookie: ",cookie_launch)
 
     #Step 5: Pass the SAML response to the idp
     requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
@@ -126,11 +125,25 @@ def authenticate_SMP(s_user,s_password):
     return s_launch
 
 
-def download_SMP(session_launch, packageId):
+def download_SMP(session_launch, packageId,s_user,s_password):
 
     re8 = session_launch.get("https://launchpad.support.sap.com/services/odata/svt/swdcuisrv/SearchResultSet?SEARCH_MAX_RESULT=500&RESULT_PER_PAGE=500&SEARCH_STRING={0}".format(packageId),
           headers={"Accept":"application/json"})
-    print(re8.content) 
+    downloadlinks_json = json.loads(re8.content)
+    for i in downloadlinks_json['d']['results']:
+        print("Downloading: {0}.....".format(i['Title']))
+        print(i['DownloadDirectLink'])
+        re = requests.get(i['DownloadDirectLink'], auth=(s_user,s_password), allow_redirects=False)
+        print("{0} :{1} \n".format(re.status_code,re.headers))
+        re2 = requests.get(re.headers['Location'], auth=(s_user,s_password), stream=True)
+        savefile = i['Title']
+        print("{0} :{1} \n".format(re2.status_code,re2.headers))
+        with open(savefile,'wb') as f:
+            for chunk in re2.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
+
 
 def main():
     parser = argparse.ArgumentParser(description='Process ')
@@ -139,7 +152,7 @@ def main():
     parser.add_argument('-i', "--package_id", required=True, help='Package Id of the package to download')
     args = parser.parse_args()
     session_launchpad = authenticate_SMP(args.s_user,args.s_password)
-    download_SMP(session_launchpad,args.package_id)
+    download_SMP(session_launchpad,args.package_id,args.s_user,args.s_password)
 
 if __name__=="__main__":
     main()
