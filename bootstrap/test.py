@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import urllib
 import argparse
-import pdb 
 from http import cookies
 
 def authenticate_SMP(s_user,s_password):
@@ -36,11 +35,10 @@ def authenticate_SMP(s_user,s_password):
 
     ### step 2: post to idp with the information
     s_auth = requests.session()
-    re2 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/mds",headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
+    re2 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/mds",
+            headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
     print("2: ",re2.status_code)
-    #save the cookie
-    cookie_auth = re2.headers['set-cookie']
-    #cookie_auth.replace(",",";")
+
     #get the saml request
     soup = BeautifulSoup(re2.content, 'html.parser')
     for input_h in soup.find_all('input'):
@@ -53,9 +51,11 @@ def authenticate_SMP(s_user,s_password):
 
     ### step 3: pass the saml request
     s_accounts = requests.session()
-    re3=s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/mds", "Content-Type":"application/x-www-form-urlencoded", "Content-Length": str(len(requestBody))},data=requestBody)
+    re3=s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+            headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/mds", 
+            "Content-Type":"application/x-www-form-urlencoded", 
+            "Content-Length": str(len(requestBody))},data=requestBody)
     print("3: ",re3.status_code)
-    a_cookies = re3.headers['Set-Cookie']
     soup = BeautifulSoup(re3.content, 'html.parser')
     for input_h in soup.find_all('input'):
         #print(input_h.get('name'))
@@ -78,9 +78,15 @@ def authenticate_SMP(s_user,s_password):
 
     #Step 4: Send the credentials and get the appropriate cookies
     #print(requestBody2)
-    cookie = a_cookies
-    #print("cookie for step 4: ",cookie)
-    re4 = s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com","Upgrade-Insecure-Requests": "1", "DNT":"1", "Content-Type": "application/x-www-form-urlencoded", "Cookie": cookie, "Accept-Encoding": "gzip, deflate, br","Content-Length":str(len(requestBody2))}, data=requestBody2)
+    re4 = s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", 
+            headers={"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+                    "Upgrade-Insecure-Requests": "1", 
+                    "DNT":"1", 
+                    "Content-Type": "application/x-www-form-urlencoded", 
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Content-Length":str(len(requestBody2))},
+            data=requestBody2)
     #print("content: ",re4.content)
     print("4: ",re4.status_code)
 
@@ -98,30 +104,42 @@ def authenticate_SMP(s_user,s_password):
     #Step 5: Pass the SAML response to the idp
     requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
     #print("body: ",requestBody5)
-    re5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal", headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
-        "Content-Type": "application/x-www-form-urlencoded","Cookie": cookie_auth,"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Encoding": "gzip, deflate, br", 
-          "Upgrade-Insecure-Requests": "1", "DNT":"1",
-          "Content-Length":str(len(requestBody5))}, data=requestBody5)
+    re5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
+            headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Encoding": "gzip, deflate, br", 
+            "Upgrade-Insecure-Requests": "1", "DNT":"1",
+            "Content-Length":str(len(requestBody5))}, data=requestBody5)
     print("5: ",re5.status_code)
 
     #step 6:
     requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
-    print("content-length",str(len(requestBody6)))
     re6 = s_launch.post("https://launchpad.support.sap.com/",allow_redirects=False,
           headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
               "Content-Type":"application/x-www-form-urlencoded", "Upgrade-Insecure-Requests":"1",
               "Accept-Encoding": "gzip, deflate, br","Accept":"text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8","Connection":"Keep-Alive",
               "Content-Length":str(len(requestBody6))}, cookies=cookie_launch,data=requestBody6)
-    print("6: ",re6.status_code)
-    print("Headers 6: ",re6.headers)
-    #print("Content 6: ",re6.content)
-    #print("headers: \n{0}\n and \ncontent:\n {1}".format(re6.headers,re6.content))
+
+    #the s_launch session already has the cookie it needs.
+    re7 = s_launch.get("https://launchpad.support.sap.com", 
+          headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal"})
+    return s_launch
+
+
+def download_SMP(session_launch, packageId):
+
+    re8 = session_launch.get("https://launchpad.support.sap.com/services/odata/svt/swdcuisrv/SearchResultSet?SEARCH_MAX_RESULT=500&RESULT_PER_PAGE=500&SEARCH_STRING={0}".format(packageId),
+          headers={"Accept":"application/json"})
+    print(re8.content) 
+
 def main():
     parser = argparse.ArgumentParser(description='Process ')
     parser.add_argument('-u', "--s_user", required=True, help='S_user')
     parser.add_argument('-p', "--s_password", required=True, help='S_password')
+    parser.add_argument('-i', "--package_id", required=True, help='Package Id of the package to download')
     args = parser.parse_args()
-    authenticate_SMP(args.s_user,args.s_password)
+    session_launchpad = authenticate_SMP(args.s_user,args.s_password)
+    download_SMP(session_launchpad,args.package_id)
 
 if __name__=="__main__":
     main()
