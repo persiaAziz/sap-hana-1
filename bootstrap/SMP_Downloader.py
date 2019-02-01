@@ -1,14 +1,10 @@
 '''
 This script searches the SAP service market place by product Id and downloads the files
-The files are then uploaded to a Azure blob
 
 Input: 
     1. SAP user ID
     2. SAP user password
     3. Package ID to search for
-    4. Name of the Azure blob storage
-    5. Storage account name
-    6. Storage account key
 '''
 
 import requests
