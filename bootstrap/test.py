@@ -129,7 +129,7 @@ def authenticate_SMP(s_user,s_password):
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Encoding": "gzip, deflate, br",
                     "Upgrade-Insecure-Requests": "1", "DNT":"1",
-                    "Content-Length":str(len(requestBody5))}i,
+                    "Content-Length":str(len(requestBody5))},
             data=requestBody5)
     assert (200==re5.status_code),"Authentication failed."
 
