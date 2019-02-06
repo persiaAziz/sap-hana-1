@@ -30,7 +30,7 @@
                 src: "{{ test_config }}"
                 dest: /hana/shared/hwcct/
           - name: run hwcct
-            shell: source envprofile.sh; ./hwval -f "{{ test_config }}"> hwcct_out.log
+            shell: source envprofile.sh; ./hwval -f "{{ test_config }}"
             args:
                 chdir: /hana/shared/hwcct/
                 executable: /bin/bash
