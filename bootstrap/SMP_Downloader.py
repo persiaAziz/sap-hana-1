@@ -35,19 +35,20 @@ def authenticate_SMP(s_user,s_password):
     assert (200==response1.status_code),"Authentication failed."
     soup = BeautifulSoup(response1.content, 'html.parser')
     for input_h in soup.find_all('input'):
-        #print(input_h.get('name'))
-        if "requestId" == input_h.get('name'):
-            requestId = input_h.get('value')
-        if "tenantId" == input_h.get('name'):
-            tenantId = input_h.get('value')
-        if "requestUrl" == input_h.get('name'):
-            requestUrl = input_h.get('value')
-        if "idpName" == input_h.get('name'):
-            idpName = input_h.get('value')
-        if "signature" == input_h.get('name'):
-            signature = input_h.get('value')
-        if "relayState" == input_h.get('name'):
-            relayState = input_h.get('value')
+        input_field = input_h.get('name')
+        input_value = input_h.get('value')
+        if "requestId" == input_field:
+            requestId = input_value
+        elif "tenantId" == input_field:
+            tenantId = input_value
+        elif "requestUrl" == input_field:
+            requestUrl = input_value
+        elif "idpName" == input_field:
+            idpName = input_value
+        elif "signature" == input_field:
+            signature = input_value
+        elif "relayState" == input_field:
+            relayState = input_value
 
     cookie_launch = response1.cookies
 
@@ -83,16 +84,18 @@ def authenticate_SMP(s_user,s_password):
     # Retrieve the authenticity token, cross-site request forgery  protection, IDP endpoint, service provider id and name
     soup = BeautifulSoup(response3.content, 'html.parser')
     for input_h in soup.find_all('input'):
-        if "authenticity_token" == input_h.get('name'):
-            auth_token = input_h.get('value')
-        if "xsrfProtection" == input_h.get('name'):
-            xsrfProtection = input_h.get('value')
-        if "idpSSOEndpoint" == input_h.get('name'):
-            idp_sso_endpoint = input_h.get('value')
-        if "spId" == input_h.get('name'):
-            data_spid = input_h.get('value')
-        if "spName" == input_h.get('name'):
-            data_spname = input_h.get('value')
+        input_field = input_h.get('name')
+        input_value = input_h.get('value')
+        if "authenticity_token" == input_field:
+            auth_token = input_value
+        elif "xsrfProtection" == input_field:
+            xsrfProtection = input_value
+        elif "idpSSOEndpoint" == input_field:
+            idp_sso_endpoint = input_value
+        elif "spId" == input_field:
+            data_spid = input_value
+        elif "spName" == input_field:
+            data_spname = input_value
 
     requestBody2="utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"xsrfProtection":xsrfProtection,"method":"POST",
         "idpSSOEndpoint":idp_sso_endpoint,"SAMLRequest":saml_request,"RelayState":relayState_auth,"targetUrl":"",
