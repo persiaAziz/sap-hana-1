@@ -28,6 +28,8 @@ def authenticate_SMP(s_user,s_password):
     URL_sap_launchpad = "https://launchpad.support.sap.com"
     URL_sap_auth = "https://authn.hana.ondemand.com/saml2/sp/mds"
     URL_sap_accounts = "https://accounts.sap.com/saml2/idp/sso/accounts.sap.com"
+    URL_sap_auth_portal = "https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal"
+
     print("\nAuthenticating to the SAP Service Market Place with the provided crendentials")
     ### step 1: get the idpname, tenantid etc.
     s_launch = requests.session()
@@ -125,7 +127,7 @@ def authenticate_SMP(s_user,s_password):
 
     #Step 5: Pass the SAML response to the idp
     requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
-    response5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
+    response5 = s_auth.post(URL_sap_auth_portal,
             headers={"Referer":URL_sap_accounts,
                     "Content-Type": "application/x-www-form-urlencoded",
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -138,7 +140,7 @@ def authenticate_SMP(s_user,s_password):
     #step 6: use the authenticity token to get the session cookie
     requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
     response6 = s_launch.post(URL_sap_launchpad,allow_redirects=False,
-          headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
+          headers={"Referer":URL_sap_auth_portal,
                    "Content-Type":"application/x-www-form-urlencoded",
                    "Upgrade-Insecure-Requests":"1",
                    "Accept-Encoding": "gzip, deflate, br",
@@ -149,7 +151,7 @@ def authenticate_SMP(s_user,s_password):
 
     #step 7: store the session cookie in s_launch.
     response7 = s_launch.get(URL_sap_launchpad,
-          headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal"})
+          headers={"Referer":URL_sap_auth_portal})
     print("Authentication succeeded")
     return s_launch
 
