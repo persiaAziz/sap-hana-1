@@ -10,7 +10,9 @@ Input:
 # File uploader
 Script: AZ_blob_uploader.py
 
-This script uploads files to the provided container in an azure blob
+This script uploads files to the provided container in an Azure blob
 Input: storage account, storage account key, container name, files to upload
 Example:
+```sh
      python AZ_blob_uploader.py -u 'YYYYYY' -p 'XXXXXX' -i container-test -f "file1" "file2"
+```

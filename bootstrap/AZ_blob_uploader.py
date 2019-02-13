@@ -7,9 +7,9 @@ Example:
 import argparse
 from azure.storage.blob import BlockBlobService, PublicAccess
 
-def upload(az_blob_service, filesToUpload, blob_container_name):
+def upload(az_blob_service, files_to_upload, blob_container_name):
     az_blob_service.create_container(blob_container_name)
-    for afile in filesToUpload:
+    for afile in files_to_upload:
         print("Uploading {0} to {1}".format(afile,blob_container_name))
         saveas  = afile.split('/')[-1]
         az_blob_service.create_blob_from_path(blob_container_name, afile, saveas)
