@@ -25,12 +25,15 @@ Returns: requests.session() -  Authenticated session to launchpad.support.sap.co
 
 def authenticate_SMP(s_user,s_password):
 
+    URL_sap_launchpad = "https://launchpad.support.sap.com"
+    URL_sap_auth = "https://authn.hana.ondemand.com/saml2/sp/mds"
+    URL_sap_accounts = "https://accounts.sap.com/saml2/idp/sso/accounts.sap.com"
     print("\nAuthenticating to the SAP Service Market Place with the provided crendentials")
     ### step 1: get the idpname, tenantid etc.
     s_launch = requests.session()
-    re1 = s_launch.get("https://launchpad.support.sap.com", headers={"Connection":"Kepp-Alive"})
-    assert (200==re1.status_code),"Authentication failed."
-    soup = BeautifulSoup(re1.content, 'html.parser')
+    response1 = s_launch.get(URL_sap_launchpad, headers={"Connection":"Keep-Alive"})
+    assert (200==response1.status_code),"Authentication failed."
+    soup = BeautifulSoup(response1.content, 'html.parser')
     for input_h in soup.find_all('input'):
         #print(input_h.get('name'))
         if "requestId" == input_h.get('name'):
@@ -46,7 +49,7 @@ def authenticate_SMP(s_user,s_password):
         if "relayState" == input_h.get('name'):
             relayState = input_h.get('value')
 
-    cookie_launch = re1.cookies
+    cookie_launch = response1.cookies
 
     requestBody = "tenantId={0}&idpName={1}&requestUrl={2}&requestId={3}&relayState={4}&action=sso&signature={5}".format(urllib.parse.quote(tenantId),
             urllib.parse.quote(idpName),
@@ -55,12 +58,12 @@ def authenticate_SMP(s_user,s_password):
 
     ### step 2: post to idp with the information
     s_auth = requests.session()
-    re2 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/mds",
-            headers={"Referer":"https://launchpad.support.sap.com/", "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
-    assert (200==re2.status_code),"Authentication failed."
+    response2 = s_auth.post(URL_sap_auth,
+            headers={"Referer":URL_sap_launchpad, "Content-Type":"application/x-www-form-urlencoded"},data=requestBody)
+    assert (200==response2.status_code),"Authentication failed."
 
     #get the saml request
-    soup = BeautifulSoup(re2.content, 'html.parser')
+    soup = BeautifulSoup(response2.content, 'html.parser')
     for input_h in soup.find_all('input'):
         if "SAMLRequest" == input_h.get('name'):
             saml_request = input_h.get('value')
@@ -70,15 +73,15 @@ def authenticate_SMP(s_user,s_password):
 
     ### step 3: pass the saml request
     s_accounts = requests.session()
-    re3=s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
-            headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/mds",
+    response3=s_accounts.post(URL_sap_accounts,
+            headers={"Referer":URL_sap_auth,
                     "Content-Type":"application/x-www-form-urlencoded",
                     "Content-Length": str(len(requestBody))},
             data=requestBody)
-    assert (200==re3.status_code),"Authentication failed."
+    assert (200==response3.status_code),"Authentication failed."
 
     # Retrieve the authenticity token, cross-site request forgery  protection, IDP endpoint, service provider id and name
-    soup = BeautifulSoup(re3.content, 'html.parser')
+    soup = BeautifulSoup(response3.content, 'html.parser')
     for input_h in soup.find_all('input'):
         if "authenticity_token" == input_h.get('name'):
             auth_token = input_h.get('value')
@@ -97,48 +100,48 @@ def authenticate_SMP(s_user,s_password):
         "tfaToken":"","css":"","j_username":s_user,"j_password":s_password})
 
     #Step 4: Send the credentials and get the appropriate cookies
-    re4 = s_accounts.post("https://accounts.sap.com/saml2/idp/sso/accounts.sap.com", 
+    response4 = s_accounts.post(URL_sap_accounts,
             headers={"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+                    "Referer":URL_sap_accounts,
                     "Upgrade-Insecure-Requests": "1", 
                     "DNT":"1", 
                     "Content-Type": "application/x-www-form-urlencoded", 
                     "Accept-Encoding": "gzip, deflate, br",
                     "Content-Length":str(len(requestBody2))},
             data=requestBody2)
-    assert (200==re4.status_code),"Authentication failed."
+    assert (200==response4.status_code),"Authentication failed."
 
-    soup = BeautifulSoup(re4.content, 'html.parser')
+    soup = BeautifulSoup(response4.content, 'html.parser')
     for input_h in soup.find_all('input'):
         if "SAMLResponse" == input_h.get('name'):
             saml_response = input_h.get('value')
 
     cookie_processor = cookies.SimpleCookie()
-    cookie_processor.load(re4.cookies)
+    cookie_processor.load(response4.cookies)
     cookie_launch.set('IDP_SESSION_MARKER_accounts',cookie_processor['IDP_SESSION_MARKER_accounts'].value, domain= ".sap.com",path="/")
 
     #Step 5: Pass the SAML response to the idp
     requestBody5 = "utf8=%E2%9C%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
-    re5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
-            headers={"Referer":"https://accounts.sap.com/saml2/idp/sso/accounts.sap.com",
+    response5 = s_auth.post("https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
+            headers={"Referer":URL_sap_accounts,
                     "Content-Type": "application/x-www-form-urlencoded",
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Encoding": "gzip, deflate, br",
                     "Upgrade-Insecure-Requests": "1", "DNT":"1",
                     "Content-Length":str(len(requestBody5))},
             data=requestBody5)
-    assert (200==re5.status_code),"Authentication failed."
+    assert (200==response5.status_code),"Authentication failed."
 
     #step 6:
     requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
-    re6 = s_launch.post("https://launchpad.support.sap.com/",allow_redirects=False,
+    response6 = s_launch.post(URL_sap_launchpad,allow_redirects=False,
           headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
               "Content-Type":"application/x-www-form-urlencoded", "Upgrade-Insecure-Requests":"1",
               "Accept-Encoding": "gzip, deflate, br","Accept":"text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8","Connection":"Keep-Alive",
               "Content-Length":str(len(requestBody6))}, cookies=cookie_launch,data=requestBody6)
 
-    #the s_launch session already has the cookie it needs.
-    re7 = s_launch.get("https://launchpad.support.sap.com", 
+    #step 7: store the session cookie in s_launch.
+    response7 = s_launch.get(URL_sap_launchpad,
           headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal"})
     print("Authentication succeeded")
     return s_launch
@@ -155,16 +158,16 @@ Returns: None
 
 def download_SMP(session_launch, packageId,s_user,s_password):
 
-    re8 = session_launch.get("https://launchpad.support.sap.com/services/odata/svt/swdcuisrv/SearchResultSet?SEARCH_MAX_RESULT=500&RESULT_PER_PAGE=500&SEARCH_STRING={0}".format(packageId),
+    resp_laundhpad = session_launch.get("https://launchpad.support.sap.com/services/odata/svt/swdcuisrv/SearchResultSet?SEARCH_MAX_RESULT=500&RESULT_PER_PAGE=500&SEARCH_STRING={0}".format(packageId),
           headers={"Accept":"application/json"})
-    downloadlinks_json = json.loads(re8.content)
+    downloadlinks_json = json.loads(resp_laundhpad.content)
     for i in downloadlinks_json['d']['results']:
         print("Found {0}. \n Downloading.....".format(i['Title']))
-        re = requests.get(i['DownloadDirectLink'], auth=(s_user,s_password), allow_redirects=False)
-        re2 = requests.get(re.headers['Location'], auth=(s_user,s_password), stream=True)
+        resp_download = requests.get(i['DownloadDirectLink'], auth=(s_user,s_password), allow_redirects=False)
+        response = requests.get(resp_download.headers['Location'], auth=(s_user,s_password), stream=True)
         savefile = i['Title']
         with open(savefile,'wb') as f:
-            for chunk in re2.iter_content(chunk_size=1024):
+            for chunk in response.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
         print("Downloaded to file: {0}".format(savefile))
