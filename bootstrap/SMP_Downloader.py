@@ -132,13 +132,17 @@ def authenticate_SMP(s_user,s_password):
             data=requestBody5)
     assert (200==response5.status_code),"Authentication failed."
 
-    #step 6:
+    #step 6: use the authenticity token to get the session cookie
     requestBody6 = "utf8=%C3%A2%C2%9C%C2%93&"+urllib.parse.urlencode({"authenticity_token":auth_token,"SAMLResponse":saml_response,"RelayState":relayState_auth})
     response6 = s_launch.post(URL_sap_launchpad,allow_redirects=False,
           headers={"Referer":"https://authn.hana.ondemand.com/saml2/sp/acs/supportportal/supportportal",
-              "Content-Type":"application/x-www-form-urlencoded", "Upgrade-Insecure-Requests":"1",
-              "Accept-Encoding": "gzip, deflate, br","Accept":"text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8","Connection":"Keep-Alive",
-              "Content-Length":str(len(requestBody6))}, cookies=cookie_launch,data=requestBody6)
+                   "Content-Type":"application/x-www-form-urlencoded",
+                   "Upgrade-Insecure-Requests":"1",
+                   "Accept-Encoding": "gzip, deflate, br",
+                   "Accept":"text/html, application/xhtml+xml, application/xml; q=0.9, */*; q=0.8",
+                   "Connection":"Keep-Alive",
+                   "Content-Length":str(len(requestBody6))},
+          cookies=cookie_launch,data=requestBody6)
 
     #step 7: store the session cookie in s_launch.
     response7 = s_launch.get(URL_sap_launchpad,
