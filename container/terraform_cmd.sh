@@ -1,11 +1,11 @@
 #!/bin/bash
 
-ls -l /tmp/persia
-cat /tmp/persia/terraform.tfvars
+ls -l /tmp/
+cat /tmp/sapsystem/terraform.tfvars
 
 yes | ssh-keygen -b 4096 -t rsa -f /tmp/sshkey -q -N ""
 git clone https://github.com/Azure/sap-hana.git
-cp /tmp/persia/terraform.tfvars sap-hana/deploy/vm/modules/single_node_hana/
+cp /tmp/sapsystem/terraform.tfvars sap-hana/deploy/vm/modules/single_node_hana/
 cd sap-hana/deploy/vm/modules/single_node_hana
 ls
 echo "Single node deployment starting........"
