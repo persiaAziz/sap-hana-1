@@ -65,7 +65,7 @@ container_list = []
 container_resource_requests = cg_models.ResourceRequests(memory_in_gb = 1, cpu = 1)
 container_resource_requirements = cg_models.ResourceRequirements(requests = container_resource_requests)
 CONTAINER_VOL_MOUNT='sapsystemvolumemount'
-vol_mount = [cg_models.VolumeMount(name=CONTAINER_VOL_MOUNT,mount_path="/tmp")]
+vol_mount = [cg_models.VolumeMount(name=CONTAINER_VOL_MOUNT,mount_path="/aci")]
 env_vars=[
           cg_models.EnvironmentVariable(name='AZURE_SUBSCRIPTION_ID',value=subscription_id),
           cg_models.EnvironmentVariable(name='AZURE_CLIENT_ID',value=CLIENT_ID),
