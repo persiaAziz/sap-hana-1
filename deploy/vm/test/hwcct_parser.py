@@ -127,9 +127,9 @@ def parseDISKTest(logfile):
     print(hwcct_test)
 
 def main():
-    print("This is a HWCCT parser")
+    print("This is a HWCCT DISK IO test parser")
     parser = argparse.ArgumentParser(description='Process ')
-    parser.add_argument('-l', "--log", required=True, help='an integer for the accumulator')
+    parser.add_argument('-l', "--log", required=True, help='hwcct I/O test output files ')
 
     args = parser.parse_args()
     parseDISKTest(args.log)
