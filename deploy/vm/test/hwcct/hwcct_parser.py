@@ -107,7 +107,7 @@ def parseDISKTest(logfile, outputfile):
                 line = skip_until(line,"* Output",f)
                 test_case = {}
                 blocksize = line.split("for")[1]
-                blocksize = blocksize.split(" ")[1]
+                blocksize = 'B'+blocksize.split(" ")[1]
                 test_case[blocksize] = {}
                 #skip until line starts with Results
                 line = skip_until(line,"Results",f)
