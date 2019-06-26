@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-16.04'
+
+jobs:
+- job: "single_node_hana"
+  variables:
+    - group: test_sap_hana_deployment
+    - group: azure-sap-hana-pipeline-secrets
+  pool:
+    vmImage: "ubuntu-16.04"
+  displayName: "Test deployment of single node hana"
+  steps:
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    clean: "all"
+    path: "sap-hana"  # path to check out source code, relative to the agent's build directory
+    persistCredentials: boolean  # set to 'true' to leave the OAuth token in the Git config after the initial fetch
+  - script: |
+      ssh-keygen -b 4096 -t rsa -f /tmp/sshkey -q -N ""
+      cp deploy/vm/test/terraform.tfvars deploy/vm/modules/single_node_hana
+      cd deploy/vm/modules/single_node_hana
+      terraform init
+      terraform plan -no-color
+    displayName: 'Test single node hana'
