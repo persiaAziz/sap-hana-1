@@ -21,9 +21,9 @@ jobs:
       cp deploy/vm/test/terraform.tfvars deploy/vm/modules/single_node_hana
       cd deploy/vm/modules/single_node_hana
       terraform init
-      terraform apply -no-color
+      terraform apply -no-color -auto-approve
       echo "terraform apply succeeded. Now running terraform destroy"
-      terraform destroy -no-color
+      terraform destroy -no-color -auto-approve
     displayName: 'Test single node hana'
     env:
       TF_VAR_azure_service_principal_id: $(hana-pipeline-spn-id)
